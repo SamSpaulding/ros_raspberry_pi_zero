@@ -1,26 +1,26 @@
-# Installation
-The Raspberry Pi Zero is a small, affordable, and powerfull single board computer.  With ROS Kinetic, we can use this as convenient I/O expander integrated with the rest of our robot via the Rasbperry Pi Zero USB Network Gadget, including use of the hardware accelerated Raspberry Pi camera with the ROS Camera interfaces.
+# Introduction
+The Raspberry Pi Zero is a small, affordable, and powerfull single board computer.  With ROS Kinetic, we can use this as a convenient I/O expander and remote camera, integrated with the rest of our robot via the Rasbperry Pi Zero USB Network Gadget.  The Raspberry Pi camera is hardware accelerated, enabling efficient VGA video streaming with the ROS Camera interfaces.
 
 The following steps will enable the compilation and installation of ROS Kinetic on a Raspberry Pi Zero, running Raspian Jessie Lite.
 
-Many thanks for the helpful documentation sets and wikis utilized below in the references sections.
+Many thanks for the helpful documentation sets and Wiki instructions referenced below.  They provided several missing steps and gaps I was missing.
 
-## Raspbian Jessie OS
+# Installation
 
-### Installing Raspbian on Rasberry Pi Zero
+## Installing Raspbian Jessie on Rasberry Pi Zero
 To begin, download the last version of the Raspbian OS from [this link](http://www.raspberrypi.org/downloads/)
 
 In our case we downloaded the *Jessie Lite* version at https://downloads.raspberrypi.org/raspbian_lite_latest
 
-Plug the Rasp SD card in your PC and copy the image.
+Plug the Rasp SD card in your Linux based PC and copy the image.
 ```bash
 $ sudo umount /dev/sdb
 $ sudo dd bs=1M if=2016-11-25-jessie-lite.img of=/dev/sdb
 ```
 **NOTE:** you can see other methods in http://www.raspberrypi.org/documentation/installation/installing-images/README.md 
 
-### First boot on your raspberry
-Once you are connecting to your raspberry you must prepare it.
+### First boot on your Raspberry Pi Zero
+Once you are connecting to your Raspberry you must prepare it.
 ```bash
 $ sudo raspi-config
 ```
@@ -50,20 +50,21 @@ Now update the Debian package index with the new repository:
 $ sudo apt-get update
 $ sudo apt-get upgrade
 ```
+
 ### ROS bootstrap dependencies
 ```bash
-$ sudo apt-get install python-setuptools
+$ sudo apt-get install python-setuptools git checkinstall cmake libboost-system-dev libboost-thread-dev
 $ sudo easy_install pip
 $ sudo pip install -U rosdep rosinstall_generator wstool rosinstall
 ```
+
 ### Initializing rosdep
 ```bash
 $ sudo rosdep init
 $ rosdep update
 ```
-### Installation
-Now we will download and build ROS Kinetic from source
-#### Create a catkin Workspace
+
+### Create a catkin Workspace
 
 In order to build the core packages, you will need a catkin workspace.
 ```bash
@@ -80,14 +81,10 @@ $ wstool init -j8 src kinetic-robot-wet.rosinstall
 ```
 $ wstool update -j8 -t src
 ```
-#### Resolve Dependencies
-Before you can build your catkin workspace you need to make sure that you have all the required dependencies. We use the rosdep tool for this, however, first, one dependency is not available in the Jessie repositories and must be manually built.
-
-##### libconsole-bridge-dev
-We need install libconsole-bridge-dev for ROS_Comm:
+### libconsole-bridge-dev
+We need install libconsole-bridge-dev for ROS_Comm, as it is not yet available in the Jessie repositories and must be built manually.
 The packages can be built from source in a new directory (Also install checkinstall and cmake):
 ```bash
-$ sudo apt-get install git checkinstall cmake libboost-system-dev libboost-thread-dev
 $ mkdir ~/ros_catkin_ws/external_src
 $ cd ~/ros_catkin_ws/external_src
 $ git clone https://github.com/ros/console_bridge.git
@@ -97,19 +94,18 @@ $ sudo checkinstall make install
 ```
 When check-install asks for any changes, the name (2) needs to change from "console-bridge" to "libconsole-bridge-dev" otherwise the rosdep install wont find it.
 
-##### Resolving Dependencies with rosdep
+### Resolving Dependencies with rosdep
 The remaining dependencies should be resolved by running rosdep:
 
 ```bash
 $ cd ~/ros_catkin_ws
 $ rosdep install --from-paths src --ignore-src --rosdistro kinetic -y -r --os=debian:jessie
 ```
-**NOTE:** Rosdep may report that python-rosdep, python-catkin-pkg, python-rospkg, and python-rosdistro failed to install; however, you can ignore this error because they have already been installed with pip.
 
 ### Building the catkin Workspace
 Once you have completed downloading the packages and have resolved the dependencies, you are ready to build the catkin packages.
 
-**NOTE:** before this you may be interesting in using a program like screen to close your ssh connection if you want and continue the build on the Raspberry Pi
+**NOTE:** Building time takes about 9 hours on a Raspberry Pi Zero.  Before invoking the build step, you may be interesting in using a program like screen to close your ssh connection and allow the build on the Raspberry Pi to continue uninterrupted.
 http://raspi.tv/2012/using-screen-with-raspberry-pi-to-avoid-leaving-ssh-sessions-open
 
 Invoke catkin_make_isolated:
@@ -170,7 +166,7 @@ $ rosservice call /raspicam_node/camera/start_capture
 $ rqt_image_view image:=/raspicam_node/camera/image/compressed
 ```
 
-# References3
+# References
 * https://github.com/antdroid-hexapod/antdroid/wiki/Installation
 * http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Indigo%20on%20Raspberry%20Pi
 * http://wiki.ros.org/kinetic/Installation/Source
