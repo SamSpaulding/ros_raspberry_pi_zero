@@ -157,7 +157,7 @@ $ source devel/setup.bash
 ```bash
 $ roscore &
 $ rosrun raspicam raspicam_node &
-$ rosservice call /raspicam_node/camera/start_capture
+$ rosservice call /camera/start_capture
 ```
 
 ### Viewing the camera node
